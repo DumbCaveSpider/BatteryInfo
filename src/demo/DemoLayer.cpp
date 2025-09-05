@@ -20,32 +20,46 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         // Only show if battery level is known
         if (batteryLevel >= 0.0f) {
-            std::string statusText = 
-                "Battery: " + std::to_string(static_cast<int>(batteryLevel)) + "% " + 
-                (charging ? "[Charging]" : "") +
-                (batterySaver ? " [Saver]" : "");
-            
-            auto label = CCLabelBMFont::create(statusText.c_str(), "bigFont.fnt");
-            label->setScale(0.5f);
-            
-            // Position at bottom right
-            auto winSize = CCDirector::sharedDirector()->getWinSize();
-            label->setPosition({winSize.width / 2, winSize.height - 100});
-            
-            // Set color based on battery level
-            if (batteryLevel <= 20.0f) {
-                label->setColor(ccColor3B{255, 0, 0}); // Red for low battery
-            } else if (batteryLevel <= 50.0f) {
-                label->setColor(ccColor3B{255, 165, 0}); // Orange for medium battery
+            // Check if we already have a battery info label
+            auto existingLabel = this->getChildByTag(1001);
+            if (existingLabel) {
+                // Label already exists, let's update it
+                updateBatteryDisplay(0.0f);
             } else {
-                label->setColor(ccColor3B{0, 255, 0}); // Green for good battery
+                std::string statusText = 
+                    "Battery: " + std::to_string(static_cast<int>(batteryLevel)) + "% " + 
+                    (charging ? "[Charging]" : "") +
+                    (batterySaver ? " [Saver]" : "");
+                
+                auto label = CCLabelBMFont::create(statusText.c_str(), "bigFont.fnt");
+                label->setScale(0.5f);
+                
+                // Position at bottom right
+                auto winSize = CCDirector::sharedDirector()->getWinSize();
+                label->setPosition({winSize.width / 2, winSize.height - 100});
+                
+                // Set color based on battery level
+                if (batteryLevel <= 20.0f) {
+                    label->setColor(ccColor3B{255, 0, 0}); // Red for low battery
+                } else if (batteryLevel <= 50.0f) {
+                    label->setColor(ccColor3B{255, 165, 0}); // Orange for medium battery
+                } else {
+                    label->setColor(ccColor3B{0, 255, 0}); // Green for good battery
+                }
+                
+                label->setTag(1001);
+                this->addChild(label);
+                
+                // Schedule a periodic update to refresh battery info
+                this->schedule(schedule_selector(MyPlayLayer::updateBatteryDisplay), 5.0f);
             }
-            
-            label->setTag(1001);
-            this->addChild(label);
-            
-            // Schedule a periodic update to refresh battery info
-            this->schedule(schedule_selector(MyPlayLayer::updateBatteryDisplay), 5.0f);
+        } else {
+            // If battery level is not known, let's still check if another instance
+            // has already created a label and remove it for safety
+            auto existingLabel = this->getChildByTag(1001);
+            if (existingLabel) {
+                existingLabel->removeFromParent();
+            }
         }
         
         return true;

@@ -33,7 +33,7 @@ namespace arcticwoof {
         // Singleton access
         static BatteryInfo* get();
         
-        // Returns battery level in percent (0..100), or -1 if unknown/error
+        // Returns battery level in percent, or -1 if unknown/error
         float getBatteryLevel();
 
         // Returns true if charging/plugged, false otherwise (or on error)

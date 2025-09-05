@@ -8,15 +8,15 @@ using namespace arcticwoof;
 BatteryInfo* BatteryInfo::s_instance = nullptr;
 
 struct BatteryInfo::Impl {
-    // Add any implementation details here if needed
+    // implementation details
 };
 
 BatteryInfo::BatteryInfo() : impl(new Impl()) {
-    // Initialize the implementation if needed
+    // Initialize the implementation
 }
 
 BatteryInfo::~BatteryInfo() {
-    // Cleanup if needed
+    // Cleanup
 }
 
 BatteryInfo* BatteryInfo::get() {
