@@ -2,14 +2,14 @@
 #if defined(__ANDROID__)
 #include <jni.h>
 #include <string>
-
-extern JavaVM* g_jvm; // project usually provides this; adapt if different
+#include <Geode/platform/android.hpp>
 
 static JNIEnv* getJniEnv() {
-    if (!g_jvm) return nullptr;
+    auto jvm = geode::android::getJavaVM();
+    if (!jvm) return nullptr;
     JNIEnv* env = nullptr;
-    if (g_jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
-        if (g_jvm->AttachCurrentThread(&env, nullptr) != JNI_OK) return nullptr;
+    if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+        if (jvm->AttachCurrentThread(&env, nullptr) != JNI_OK) return nullptr;
     }
     return env;
 }
@@ -17,22 +17,48 @@ static JNIEnv* getJniEnv() {
 float BatteryInfo::getBatteryLevel() {
     JNIEnv* env = getJniEnv();
     if (!env) return -1.0f;
-    jclass cls = env->FindClass("org/cocos2dx/cpp/AppActivity"); // adjust to your package
-    if (!cls) return -1.0f;
+    
+    // Find the BatteryInfoProvider class
+    jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
+    if (!cls) {
+        // Class not found
+        return -1.0f;
+    }
+    
+    // Find the battery level method
     jmethodID mid = env->GetStaticMethodID(cls, "getBatteryLevel", "()I");
-    if (!mid) return -1.0f;
+    if (!mid) {
+        // Method not found
+        env->DeleteLocalRef(cls);
+        return -1.0f;
+    }
+    
     jint val = env->CallStaticIntMethod(cls, mid);
+    env->DeleteLocalRef(cls);
     return static_cast<float>(val);
 }
 
 bool BatteryInfo::isCharging() {
     JNIEnv* env = getJniEnv();
     if (!env) return false;
-    jclass cls = env->FindClass("org/cocos2dx/cpp/AppActivity");
-    if (!cls) return false;
+    
+    // Find the BatteryInfoProvider class
+    jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
+    if (!cls) {
+        // Class not found
+        return false;
+    }
+    
+    // Find the charging state method
     jmethodID mid = env->GetStaticMethodID(cls, "isCharging", "()Z");
-    if (!mid) return false;
+    if (!mid) {
+        // Method not found
+        env->DeleteLocalRef(cls);
+        return false;
+    }
+    
     jboolean val = env->CallStaticBooleanMethod(cls, mid);
+    env->DeleteLocalRef(cls);
     return val == JNI_TRUE;
 }
 #endif
