@@ -16,9 +16,10 @@ class $modify(MyPlayLayer, PlayLayer)
         auto batteryAPI = BatteryInfo::get();
         int batteryLevel = batteryAPI->getBatteryLevel();
         bool charging = batteryAPI->isCharging();
+        bool batterySaver = batteryAPI->isBatterySaver();
 
-        log::debug("Battery level: {}%, Charging: {}",
-                   batteryLevel, charging ? "Yes" : "No");
+        log::debug("Battery level: {}%, Charging: {}, Battery Saver: {}",
+                   batteryLevel, charging ? "Yes" : "No", batterySaver ? "Yes" : "No");
 
         // Only show if battery level is known and demo is enabled
         if (batteryLevel >= 0 && Mod::get()->getSettingValue<bool>("demo"))
@@ -34,9 +35,14 @@ class $modify(MyPlayLayer, PlayLayer)
             {
                 std::string statusText = "Battery: " + std::to_string(batteryLevel) + "%";
                 
-                // Add charging status if applicable
+                // Add charging and battery saver status if applicable
                 if (charging) {
                     statusText += " [Charging]";
+                }
+                
+                bool batterySaver = batteryAPI->isBatterySaver();
+                if (batterySaver) {
+                    statusText += " [Power Save]";
                 }
 
                 auto label = CCLabelBMFont::create(statusText.c_str(), "bigFont.fnt");
@@ -76,6 +82,7 @@ class $modify(MyPlayLayer, PlayLayer)
         auto batteryAPI = BatteryInfo::get();
         int lvl = batteryAPI->getBatteryLevel();
         bool chrg = batteryAPI->isCharging();
+        bool btrSvr = batteryAPI->isBatterySaver();
 
         auto label = static_cast<CCLabelBMFont *>(this->getChildByTag(1001));
         if (!label)
@@ -86,9 +93,13 @@ class $modify(MyPlayLayer, PlayLayer)
             // Create base text with battery level
             std::string text = "Battery: " + std::to_string(lvl) + "%";
             
-            // Add charging status if applicable
+            // Add charging and battery saver status if applicable
             if (chrg) {
                 text += " [Charging]";
+            }
+            
+            if (btrSvr) {
+                text += " [Power Save]";
             }
             
             label->setString(text.c_str());

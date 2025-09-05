@@ -64,4 +64,28 @@ bool BatteryInfo::isCharging() {
     return val == JNI_TRUE;
 }
 
+bool BatteryInfo::isBatterySaver() {
+    JNIEnv* env = getJniEnv();
+    if (!env) return false;
+    
+    // Find the BatteryInfoProvider class
+    jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
+    if (!cls) {
+        // Class not found
+        return false;
+    }
+    
+    // Find the battery saver state method
+    jmethodID mid = env->GetStaticMethodID(cls, "isPowerSaveMode", "()Z");
+    if (!mid) {
+        // Method not found
+        env->DeleteLocalRef(cls);
+        return false;
+    }
+    
+    jboolean val = env->CallStaticBooleanMethod(cls, mid);
+    env->DeleteLocalRef(cls);
+    return val == JNI_TRUE;
+}
+
 #endif

@@ -22,4 +22,13 @@ bool BatteryInfo::isCharging()
         return false;
     return (s.ACLineStatus == 1);
 }
+
+bool BatteryInfo::isBatterySaver()
+{
+    // Windows 10 1709+ supports querying battery saver mode
+    SYSTEM_POWER_STATUS s;
+    if (!GetSystemPowerStatus(&s))
+        return false;
+    return (s.SystemStatusFlag & 1) != 0;
+}
 #endif

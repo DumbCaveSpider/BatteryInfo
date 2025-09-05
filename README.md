@@ -26,6 +26,7 @@ Then, include the header in your code:
 BatteryInfo::get(); // Get an instance of the API
 int getBatteryLevel(); // Get battery level (-1 if unknown or error)
 bool isCharging(); // Check if device is charging
+bool isBatterySaver(); // Check if device is in low power/battery saver mode
 ```
 
 ## Example
@@ -43,7 +44,9 @@ class $modify(MyPlayLayer, PlayLayer) {
         auto batteryAPI = BatteryInfo::get();
         int level = batteryAPI->getBatteryLevel();
         bool charging = batteryAPI->isCharging();
-        log::info("Battery level: {}%, Charging: {}", level, charging ? "Yes" : "No");
+        bool batterySaver = batteryAPI->isBatterySaver();
+        log::info("Battery level: {}%, Charging: {}, Battery Saver: {}", 
+                  level, charging ? "Yes" : "No", batterySaver ? "Yes" : "No");
         return true;
     }
 };

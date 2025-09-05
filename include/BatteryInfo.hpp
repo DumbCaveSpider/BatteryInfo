@@ -24,19 +24,30 @@ namespace arcticwoof {
         std::unique_ptr<Impl> impl;
         static BatteryInfo* s_instance;
 
-        // Make constructor private to enforce singleton pattern
+        /// Make constructor private to enforce singleton pattern
         BatteryInfo();
 
     public:
         ~BatteryInfo();
-        
-        // Singleton access
+
+        /// Gets the BatteryInfo instance
+        /// @param None
+        /// @return Pointer to the BatteryInfo instance
         static BatteryInfo* get();
         
-        // Returns battery level, or -1 if unknown/error
+        /// Gets the device battery level, or -1 if unknown/error
+        /// @param None
+        /// @return Battery level (0-100) or -1 if unknown/error
         int getBatteryLevel();
 
-        // Returns true if charging/plugged, false otherwise (or on error)
+        /// Checks if charging/plugged or on error
+        /// @param None
+        /// @return True if charging, false otherwise
         bool isCharging();
+
+        /// Checks if device is in low power/battery saver mode
+        /// @param None
+        /// @return True if battery saver is active, false otherwise
+        bool isBatterySaver();
     };
 }

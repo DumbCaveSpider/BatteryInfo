@@ -1,34 +1,27 @@
 #if defined(__APPLE__) && !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
-
-// Define this before including system headers to prevent naming collision with Geode's CommentType enum
-#define CommentType CommentTypeDummy
-
-// First include Apple system headers before any Geode headers
 #import <Foundation/Foundation.h>
 #import <IOKit/ps/IOPowerSources.h>
 #import <IOKit/ps/IOPSKeys.h>
-
-// Then include our headers after all Apple headers
 #include <BatteryInfo.hpp>
 
 using namespace arcticwoof;
 
-int BatteryInfo::getBatteryLevel() {
+float BatteryInfo::getBatteryLevel() {
     @autoreleasepool {
         CFTypeRef powerSourceInfo = IOPSCopyPowerSourcesInfo();
-        if (!powerSourceInfo) return -1;
+        if (!powerSourceInfo) return -1.0f;
         
         CFArrayRef powerSources = IOPSCopyPowerSourcesList(powerSourceInfo);
         if (!powerSources) {
             CFRelease(powerSourceInfo);
-            return -1;
+            return -1.0f;
         }
         
         CFIndex count = CFArrayGetCount(powerSources);
         if (count == 0) {
             CFRelease(powerSources);
             CFRelease(powerSourceInfo);
-            return -1;
+            return -1.0f;
         }
         
         CFDictionaryRef powerSource = NULL;
@@ -45,7 +38,7 @@ int BatteryInfo::getBatteryLevel() {
         if (!powerSource) {
             CFRelease(powerSources);
             CFRelease(powerSourceInfo);
-            return -1;
+            return -1.0f;
         }
         
         CFNumberRef currentCapacity = (CFNumberRef)CFDictionaryGetValue(powerSource, CFSTR(kIOPSCurrentCapacityKey));
@@ -59,7 +52,7 @@ int BatteryInfo::getBatteryLevel() {
             CFNumberGetValue(maxCapacity, kCFNumberIntType, &maxValue) &&
             maxValue > 0) {
             
-            int percentage = static_cast<int>((float)currentValue / (float)maxValue * 100.0f);
+            float percentage = (float)currentValue / (float)maxValue * 100.0f;
             
             CFRelease(powerSources);
             CFRelease(powerSourceInfo);
@@ -71,7 +64,7 @@ int BatteryInfo::getBatteryLevel() {
         CFRelease(powerSourceInfo);
     }
     
-    return -1;
+    return -1.0f;
 }
 
 bool BatteryInfo::isCharging() {
@@ -117,6 +110,28 @@ bool BatteryInfo::isCharging() {
         CFRelease(powerSourceInfo);
         
         return isCharging;
+    }
+}
+
+bool BatteryInfo::isBatterySaver() {
+    @autoreleasepool {
+        // macOS 10.14+ supports Low Power Mode
+        if (@available(macOS 10.14, *)) {
+            // Check if system is in Low Power Mode
+            // Note: Prior to macOS 12, there was no explicit "Low Power Mode"
+            // but there was "automatic graphics switching" which is similar
+            NSProcessInfo* processInfo = [NSProcessInfo processInfo];
+            
+            // Starting with macOS 12 (Monterey), Low Power Mode is officially supported
+            if (@available(macOS 12.0, *)) {
+                return processInfo.lowPowerModeEnabled;
+            }
+            
+            // For older macOS versions, we can check energy saving settings
+            // This is an approximation as older macOS doesn't have a true "Low Power Mode"
+            return false;
+        }
+        return false;
     }
 }
 
