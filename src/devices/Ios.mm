@@ -2,6 +2,10 @@
 // Check specifically for iOS
 #if defined(__APPLE__) && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
 
+// Fix for CommentType name conflict between macOS SDK and Geode
+#pragma push_macro("CommentType")
+#undef CommentType
+
 using namespace arcticwoof;
     #import <UIKit/UIKit.h>
 
@@ -23,5 +27,8 @@ using namespace arcticwoof;
             return (s == UIDeviceBatteryStateCharging || s == UIDeviceBatteryStateFull);
         }
     }
+
+// Restore CommentType macro
+#pragma pop_macro("CommentType")
 
 #endif
