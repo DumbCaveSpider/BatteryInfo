@@ -16,15 +16,15 @@ static JNIEnv* getJniEnv() {
     return env;
 }
 
-float BatteryInfo::getBatteryLevel() {
+int BatteryInfo::getBatteryLevel() {
     JNIEnv* env = getJniEnv();
-    if (!env) return -1.0f;
+    if (!env) return -1;
     
     // Find the BatteryInfoProvider class
     jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
     if (!cls) {
         // Class not found
-        return -1.0f;
+        return -1;
     }
     
     // Find the battery level method
@@ -32,12 +32,12 @@ float BatteryInfo::getBatteryLevel() {
     if (!mid) {
         // Method not found
         env->DeleteLocalRef(cls);
-        return -1.0f;
+        return -1;
     }
     
     jint val = env->CallStaticIntMethod(cls, mid);
     env->DeleteLocalRef(cls);
-    return static_cast<float>(val);
+    return static_cast<int>(val);
 }
 
 bool BatteryInfo::isCharging() {

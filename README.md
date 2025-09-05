@@ -24,7 +24,7 @@ Then, include the header in your code:
 
 ```cpp
 BatteryInfo::get(); // Get an instance of the API
-float getBatteryLevel(); // Get battery level (-1 if unknown or error)
+int getBatteryLevel(); // Get battery level (-1 if unknown or error)
 bool isCharging(); // Check if device is charging
 ```
 
@@ -41,7 +41,7 @@ class $modify(MyPlayLayer, PlayLayer) {
     bool init(GJGameLevel *level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
         auto batteryAPI = BatteryInfo::get();
-        float level = batteryAPI->getBatteryLevel();
+        int level = batteryAPI->getBatteryLevel();
         bool charging = batteryAPI->isCharging();
         log::info("Battery level: {}%, Charging: {}", level, charging ? "Yes" : "No");
         return true;

@@ -5,14 +5,14 @@
 
 using namespace arcticwoof;
 
-float BatteryInfo::getBatteryLevel()
+int BatteryInfo::getBatteryLevel()
 {
     SYSTEM_POWER_STATUS s;
     if (!GetSystemPowerStatus(&s))
-        return -1.0f;
+        return -1;
     if (s.BatteryLifePercent == 255)
-        return -1.0f;
-    return static_cast<float>(s.BatteryLifePercent);
+        return -1;
+    return s.BatteryLifePercent;
 }
 
 bool BatteryInfo::isCharging()

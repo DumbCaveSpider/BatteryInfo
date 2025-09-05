@@ -14,14 +14,14 @@ class $modify(MyPlayLayer, PlayLayer)
             return false;
 
         auto batteryAPI = BatteryInfo::get();
-        float batteryLevel = batteryAPI->getBatteryLevel();
+        int batteryLevel = batteryAPI->getBatteryLevel();
         bool charging = batteryAPI->isCharging();
 
         log::debug("Battery level: {}%, Charging: {}",
                    batteryLevel, charging ? "Yes" : "No");
 
         // Only show if battery level is known and demo is enabled
-        if (batteryLevel >= 0.0f && Mod::get()->getSettingValue<bool>("demo"))
+        if (batteryLevel >= 0 && Mod::get()->getSettingValue<bool>("demo"))
         {
 
             auto existingLabel = this->getChildByTag(1001);
@@ -32,7 +32,7 @@ class $modify(MyPlayLayer, PlayLayer)
             }
             else
             {
-                std::string statusText = "Battery: " + std::to_string(static_cast<int>(batteryLevel)) + "%";
+                std::string statusText = "Battery: " + std::to_string(batteryLevel) + "%";
                 
                 // Add charging status if applicable
                 if (charging) {
@@ -47,11 +47,11 @@ class $modify(MyPlayLayer, PlayLayer)
                 label->setPosition({winSize.width / 2, winSize.height - 25});
 
                 // Set color based on battery level
-                if (batteryLevel <= 20.0f)
+                if (batteryLevel <= 20)
                 {
                     label->setColor(ccColor3B{255, 0, 0}); // Red for low battery
                 }
-                else if (batteryLevel <= 50.0f)
+                else if (batteryLevel <= 50)
                 {
                     label->setColor(ccColor3B{255, 165, 0}); // Orange for medium battery
                 }
@@ -64,7 +64,7 @@ class $modify(MyPlayLayer, PlayLayer)
                 this->addChild(label);
 
                 // Schedule a periodic update to refresh battery info
-                this->schedule(schedule_selector(MyPlayLayer::updateBatteryDisplay), 5.0f);
+                this->schedule(schedule_selector(MyPlayLayer::updateBatteryDisplay), 1.0f);
             }
         }
 
@@ -74,17 +74,17 @@ class $modify(MyPlayLayer, PlayLayer)
     void updateBatteryDisplay(float dt)
     {
         auto batteryAPI = BatteryInfo::get();
-        float lvl = batteryAPI->getBatteryLevel();
+        int lvl = batteryAPI->getBatteryLevel();
         bool chrg = batteryAPI->isCharging();
 
         auto label = static_cast<CCLabelBMFont *>(this->getChildByTag(1001));
         if (!label)
             return;
 
-        if (lvl >= 0.0f)
+        if (lvl >= 0)
         {
             // Create base text with battery level
-            std::string text = "Battery: " + std::to_string(static_cast<int>(lvl)) + "%";
+            std::string text = "Battery: " + std::to_string(lvl) + "%";
             
             // Add charging status if applicable
             if (chrg) {
@@ -94,11 +94,11 @@ class $modify(MyPlayLayer, PlayLayer)
             label->setString(text.c_str());
 
             // Update color
-            if (lvl <= 20.0f)
+            if (lvl <= 20)
             {
                 label->setColor(ccColor3B{255, 0, 0});
             }
-            else if (lvl <= 50.0f)
+            else if (lvl <= 50)
             {
                 label->setColor(ccColor3B{255, 165, 0});
             }

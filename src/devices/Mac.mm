@@ -10,22 +10,22 @@
 
 using namespace arcticwoof;
 
-float BatteryInfo::getBatteryLevel() {
+int BatteryInfo::getBatteryLevel() {
     @autoreleasepool {
         CFTypeRef powerSourceInfo = IOPSCopyPowerSourcesInfo();
-        if (!powerSourceInfo) return -1.0f;
+        if (!powerSourceInfo) return -1;
         
         CFArrayRef powerSources = IOPSCopyPowerSourcesList(powerSourceInfo);
         if (!powerSources) {
             CFRelease(powerSourceInfo);
-            return -1.0f;
+            return -1;
         }
         
         CFIndex count = CFArrayGetCount(powerSources);
         if (count == 0) {
             CFRelease(powerSources);
             CFRelease(powerSourceInfo);
-            return -1.0f;
+            return -1;
         }
         
         CFDictionaryRef powerSource = NULL;
@@ -42,7 +42,7 @@ float BatteryInfo::getBatteryLevel() {
         if (!powerSource) {
             CFRelease(powerSources);
             CFRelease(powerSourceInfo);
-            return -1.0f;
+            return -1;
         }
         
         CFNumberRef currentCapacity = (CFNumberRef)CFDictionaryGetValue(powerSource, CFSTR(kIOPSCurrentCapacityKey));
@@ -56,7 +56,7 @@ float BatteryInfo::getBatteryLevel() {
             CFNumberGetValue(maxCapacity, kCFNumberIntType, &maxValue) &&
             maxValue > 0) {
             
-            float percentage = (float)currentValue / (float)maxValue * 100.0f;
+            int percentage = static_cast<int>((float)currentValue / (float)maxValue * 100.0f);
             
             CFRelease(powerSources);
             CFRelease(powerSourceInfo);
@@ -68,7 +68,7 @@ float BatteryInfo::getBatteryLevel() {
         CFRelease(powerSourceInfo);
     }
     
-    return -1.0f;
+    return -1;
 }
 
 bool BatteryInfo::isCharging() {
