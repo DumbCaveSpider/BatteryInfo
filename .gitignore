@@ -64,4 +64,4 @@ build-*/
 /cmake-build-*/
 
 # Ignore Test directory
-src/demo/*
+#src/demo/*
