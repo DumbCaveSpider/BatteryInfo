@@ -50,11 +50,3 @@ if(APPLE)
         target_link_libraries(${PROJECT_NAME} "-framework Foundation" "-framework IOKit")
     endif()
 endif()
-
-# Add Java sources for Android
-if(ANDROID)
-    set(JAVA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/java")
-    if(EXISTS "${JAVA_DIR}")
-        geode_add_java_sources("${JAVA_DIR}/src/main/java")
-    endif()
-endif()
