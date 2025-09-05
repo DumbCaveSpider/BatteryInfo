@@ -20,7 +20,7 @@ Then, include the header in your code:
 #include <arcticwoof.battery_info_api/include/BatteryInfo.hpp>
 ```
 
-### Methods
+## Methods
 
 ```cpp
 // Get an instance of the API
@@ -37,11 +37,11 @@ bool isBatterySaver();
 
 ```
 
-### Example
+## Example
 
 ```cpp
 #include <Geode/Geode.hpp>
-#include <BatteryInfo.hpp>
+#include <arcticwoof.battery_info_api/include/BatteryInfo.hpp>
 
 using namespace geode::prelude;
 
@@ -57,3 +57,6 @@ class $modify(MyClass, SomeClass) {
 };
 ```
 *In this example, it logs the battery level, charging status, and battery saver mode status. But do keep in mind that this only fetches the battery status that executed this, so if you want to dynamically check for any changes on the battery status, you need to create a method that checks the battery status periodically.*
+
+## Disclaimer
+This is my first API mod and only intensively tested Windows and iOS only. So if you find any issues on Android or macOS, please report them so I can fix them. Pull requests are also welcome!

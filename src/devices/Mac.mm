@@ -113,7 +113,7 @@ bool BatteryInfo::isCharging() {
     }
 }
 
-bool BatteryInfo::isBatterySaverEnabled() {
+bool BatteryInfo::isBatterySaver() {
     @autoreleasepool {
         // On macOS 10.14+ we can use ProcessInfo to check for low power mode
         if (@available(macOS 10.14, *)) {

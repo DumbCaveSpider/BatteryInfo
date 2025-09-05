@@ -10,7 +10,7 @@ class $modify(MyPlayLayer, PlayLayer)
 {
     bool init(GJGameLevel *level, bool useReplay, bool dontCreateObjects)
     {
-        if (!PlayLayer::init(level, useReplay, dontCreateObjects) && !getMod()->getSettingValue<bool>("demo"))
+        if (!PlayLayer::init(level, useReplay, dontCreateObjects))
             return false;
 
         auto batteryAPI = BatteryInfo::get();
@@ -21,8 +21,8 @@ class $modify(MyPlayLayer, PlayLayer)
         log::debug("Battery level: {}%, Charging: {}, Battery Saver: {}",
                    batteryLevel, charging ? "Yes" : "No", batterySaver ? "On" : "Off");
 
-        // Only show if battery level is known
-        if (batteryLevel >= 0.0f)
+        // Only show if battery level is known and demo is enabled
+        if (batteryLevel >= 0.0f && Mod::get()->getSettingValue<bool>("demo"))
         {
 
             auto existingLabel = this->getChildByTag(1001);
@@ -33,10 +33,17 @@ class $modify(MyPlayLayer, PlayLayer)
             }
             else
             {
-                std::string statusText =
-                    "Battery: " + std::to_string(static_cast<int>(batteryLevel)) + "% " +
-                    (charging ? "[Charging]" : "") +
-                    (batterySaver ? " [Saver]" : "");
+                std::string statusText = "Battery: " + std::to_string(static_cast<int>(batteryLevel)) + "%";
+                
+                // Add charging status if applicable
+                if (charging) {
+                    statusText += " [Charging]";
+                }
+                
+                // Add battery saver status independently
+                if (batterySaver) {
+                    statusText += " [Saver]";
+                }
 
                 auto label = CCLabelBMFont::create(statusText.c_str(), "bigFont.fnt");
                 label->setScale(0.5f);
@@ -83,10 +90,19 @@ class $modify(MyPlayLayer, PlayLayer)
 
         if (lvl >= 0.0f)
         {
-            std::string text =
-                "Battery: " + std::to_string(static_cast<int>(lvl)) + "% " +
-                (chrg ? "[Charging]" : "") +
-                (saver ? " [Saver]" : "");
+            // Create base text with battery level
+            std::string text = "Battery: " + std::to_string(static_cast<int>(lvl)) + "%";
+            
+            // Add charging status if applicable
+            if (chrg) {
+                text += " [Charging]";
+            }
+            
+            // Add battery saver status independently
+            if (saver) {
+                text += " [Saver]";
+            }
+            
             label->setString(text.c_str());
 
             // Update color
