@@ -12,9 +12,12 @@ project(BatteryInfo VERSION 1.0.0)
 
 file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
-# darwim
+# Darwin/iOS specific files
 if(APPLE OR CMAKE_SYSTEM_NAME MATCHES "Darwin" OR CMAKE_SYSTEM_NAME MATCHES "iOS")
     file(GLOB_RECURSE MM_SOURCES CONFIGURE_DEPENDS src/*.mm)
+    set(CMAKE_XCODE_ATTRIBUTE_GCC_ENABLE_OBJC_EXCEPTIONS "YES")
+    set(CMAKE_PCH_EXTENSION "pch")
+    set_source_files_properties(${MM_SOURCES} PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE)
 else()
     set(MM_SOURCES "")
 endif()
