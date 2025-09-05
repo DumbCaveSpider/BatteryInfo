@@ -7,7 +7,11 @@ using namespace arcticwoof;
     float BatteryInfo::getBatteryLevel() {
         @autoreleasepool {
             UIDevice* d = [UIDevice currentDevice];
-            d.batteryMonitoringEnabled = YES;
+            if (!d.batteryMonitoringEnabled) {
+                d.batteryMonitoringEnabled = YES;
+                [NSThread sleepForTimeInterval:0.05];
+            }
+            
             float level = d.batteryLevel; // -1.0 if unknown
             if (level < 0.0f) return -1.0f;
             return level * 100.0f;
@@ -17,7 +21,11 @@ using namespace arcticwoof;
     bool BatteryInfo::isCharging() {
         @autoreleasepool {
             UIDevice* d = [UIDevice currentDevice];
-            d.batteryMonitoringEnabled = YES;
+            if (!d.batteryMonitoringEnabled) {
+                d.batteryMonitoringEnabled = YES;
+                [NSThread sleepForTimeInterval:0.05];
+            }
+            
             UIDeviceBatteryState s = d.batteryState;
             return (s == UIDeviceBatteryStateCharging || s == UIDeviceBatteryStateFull);
         }
