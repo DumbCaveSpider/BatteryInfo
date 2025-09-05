@@ -1,7 +1,16 @@
 #include <BatteryInfo.hpp>
 #if defined(__APPLE__) && !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
-#define GEODE_COMMENTTYPE_ENUM CommentType
-#undef CommentType
+
+// Save and undefine CommentType to avoid name conflict
+// Handle both normal CommentType and CommentTypeDummy
+#ifdef CommentType
+    #if defined(CommentTypeDummy)
+        #define GEODE_SAVED_COMMENTTYPE CommentTypeDummy
+    #else
+        #define GEODE_SAVED_COMMENTTYPE CommentType
+    #endif
+    #undef CommentType
+#endif
 
 using namespace arcticwoof;
 #import <Foundation/Foundation.h>
@@ -115,11 +124,10 @@ bool BatteryInfo::isCharging() {
     }
 }
 
-// Restore CommentType enum from Geode
-#undef CommentType
-#ifdef GEODE_COMMENTTYPE_ENUM
-#define CommentType GEODE_COMMENTTYPE_ENUM
-#undef GEODE_COMMENTTYPE_ENUM
+// Restore the original CommentType definition
+#ifdef GEODE_SAVED_COMMENTTYPE
+    #define CommentType GEODE_SAVED_COMMENTTYPE
+    #undef GEODE_SAVED_COMMENTTYPE
 #endif
 
 #endif

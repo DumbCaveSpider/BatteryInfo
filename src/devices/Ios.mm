@@ -2,11 +2,16 @@
 // Check specifically for iOS
 #if defined(__APPLE__) && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
 
-// Fix for CommentType name conflict between macOS SDK and Geode
-// We need to include these headers before Geode headers but also need access to Geode
-// Save and undefine anything named CommentType before Apple imports
-#define GEODE_COMMENTTYPE_ENUM CommentType
-#undef CommentType
+// Save and undefine CommentType to avoid name conflict
+// Handle both normal CommentType and CommentTypeDummy
+#ifdef CommentType
+    #if defined(CommentTypeDummy)
+        #define GEODE_SAVED_COMMENTTYPE CommentTypeDummy
+    #else
+        #define GEODE_SAVED_COMMENTTYPE CommentType
+    #endif
+    #undef CommentType
+#endif
 
 using namespace arcticwoof;
     #import <UIKit/UIKit.h>
@@ -30,11 +35,10 @@ using namespace arcticwoof;
         }
     }
 
-// Restore CommentType enum from Geode
-#undef CommentType
-#ifdef GEODE_COMMENTTYPE_ENUM
-#define CommentType GEODE_COMMENTTYPE_ENUM
-#undef GEODE_COMMENTTYPE_ENUM
+// Restore the original CommentType definition
+#ifdef GEODE_SAVED_COMMENTTYPE
+    #define CommentType GEODE_SAVED_COMMENTTYPE
+    #undef GEODE_SAVED_COMMENTTYPE
 #endif
 
 #endif
