@@ -1,5 +1,8 @@
 #if defined(__APPLE__) && !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
 
+// Define this before including system headers to prevent naming collision with Geode's CommentType enum
+#define CommentType CommentTypeDummy
+
 // First include Apple system headers before any Geode headers
 #import <Foundation/Foundation.h>
 #import <IOKit/ps/IOPowerSources.h>
