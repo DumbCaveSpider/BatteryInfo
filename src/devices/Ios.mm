@@ -1,6 +1,8 @@
-#include "../BatteryInfo.hpp"
+#include <BatteryInfo.hpp>
 // Check specifically for iOS
 #if defined(__APPLE__) && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
+
+using namespace arcticwoof;
     #import <UIKit/UIKit.h>
 
     float BatteryInfo::getBatteryLevel() {
@@ -19,6 +21,17 @@
             d.batteryMonitoringEnabled = YES;
             UIDeviceBatteryState s = d.batteryState;
             return (s == UIDeviceBatteryStateCharging || s == UIDeviceBatteryStateFull);
+        }
+    }
+
+    bool BatteryInfo::isBatterySaverEnabled() {
+        @autoreleasepool {
+            // iOS 9.0+ supports Low Power Mode
+            if (@available(iOS 9.0, *)) {
+                NSProcessInfo* processInfo = [NSProcessInfo processInfo];
+                return [processInfo isLowPowerModeEnabled];
+            }
+            return false;
         }
     }
 #endif

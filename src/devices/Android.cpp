@@ -1,8 +1,10 @@
-#include "../BatteryInfo.hpp"
+#include <BatteryInfo.hpp>
 #if defined(__ANDROID__)
 #include <jni.h>
 #include <string>
 #include <Geode/cocos/platform/android/jni/JniHelper.h>
+
+using namespace arcticwoof;
 
 static JNIEnv* getJniEnv() {
     auto jvm = cocos2d::JniHelper::getJavaVM();
@@ -51,6 +53,30 @@ bool BatteryInfo::isCharging() {
     
     // Find the charging state method
     jmethodID mid = env->GetStaticMethodID(cls, "isCharging", "()Z");
+    if (!mid) {
+        // Method not found
+        env->DeleteLocalRef(cls);
+        return false;
+    }
+    
+    jboolean val = env->CallStaticBooleanMethod(cls, mid);
+    env->DeleteLocalRef(cls);
+    return val == JNI_TRUE;
+}
+
+bool BatteryInfo::isBatterySaverEnabled() {
+    JNIEnv* env = getJniEnv();
+    if (!env) return false;
+    
+    // Find the BatteryInfoProvider class
+    jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
+    if (!cls) {
+        // Class not found
+        return false;
+    }
+    
+    // Find the battery saver state method
+    jmethodID mid = env->GetStaticMethodID(cls, "isPowerSaveMode", "()Z");
     if (!mid) {
         // Method not found
         env->DeleteLocalRef(cls);

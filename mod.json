@@ -6,9 +6,17 @@
 		"mac": "2.2074",
 		"ios": "2.2074"
 	},
-	"id": "arcticwoof.battery_info",
-	"name": "Battery Info",
+	"id": "arcticwoof.battery_info_api",
+	"name": "Battery Info API",
 	"version": "v1.0.0",
 	"developer": "ArcticWoof",
-	"description": "Shows battery information in-game"
+	"description": "API for accessing device battery information",
+	"api": {
+		"include": [
+			"include/*.hpp"
+		]
+	},
+	"dependencies": {},
+	"resources": {},
+	"tags": ["developer", "api"]
 }

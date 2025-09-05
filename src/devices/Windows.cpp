@@ -1,7 +1,9 @@
-#include "../BatteryInfo.hpp"
+#include <BatteryInfo.hpp>
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+using namespace arcticwoof;
 
 float BatteryInfo::getBatteryLevel() {
     SYSTEM_POWER_STATUS s;
@@ -14,5 +16,11 @@ bool BatteryInfo::isCharging() {
     SYSTEM_POWER_STATUS s;
     if (!GetSystemPowerStatus(&s)) return false;
     return (s.ACLineStatus == 1);
+}
+
+bool BatteryInfo::isBatterySaverEnabled() {
+    SYSTEM_POWER_STATUS s;
+    if (!GetSystemPowerStatus(&s)) return false;
+    return (s.SystemStatusFlag & 0x1) == 0x1;
 }
 #endif

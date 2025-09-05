@@ -1,5 +1,7 @@
-#include "../BatteryInfo.hpp"
+#include <BatteryInfo.hpp>
 #if defined(__APPLE__) && !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
+
+using namespace arcticwoof;
 #import <Foundation/Foundation.h>
 #import <IOKit/ps/IOPowerSources.h>
 #import <IOKit/ps/IOPSKeys.h>
@@ -108,6 +110,19 @@ bool BatteryInfo::isCharging() {
         CFRelease(powerSourceInfo);
         
         return isCharging;
+    }
+}
+
+bool BatteryInfo::isBatterySaverEnabled() {
+    @autoreleasepool {
+        // On macOS 10.14+ we can use ProcessInfo to check for low power mode
+        if (@available(macOS 10.14, *)) {
+            NSProcessInfo* processInfo = [NSProcessInfo processInfo];
+            if ([processInfo respondsToSelector:@selector(isLowPowerModeEnabled)]) {
+                return [processInfo isLowPowerModeEnabled];
+            }
+        }
+        return false;
     }
 }
 #endif
