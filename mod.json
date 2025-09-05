@@ -18,5 +18,13 @@
 	},
 	"dependencies": {},
 	"resources": {},
-	"tags": ["api", "developer"]
+	"tags": ["api", "developer"],
+	"settings": {
+		"demo":{
+			"type": "bool",
+			"name": "Show Battery Status",
+			"default": false,
+			"description": "Show the battery status in game."
+		}
+	}
 }

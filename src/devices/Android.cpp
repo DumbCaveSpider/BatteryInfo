@@ -64,7 +64,7 @@ bool BatteryInfo::isCharging() {
     return val == JNI_TRUE;
 }
 
-bool BatteryInfo::isBatterySaverEnabled() {
+bool BatteryInfo::isBatterySaver() {
     JNIEnv* env = getJniEnv();
     if (!env) return false;
     

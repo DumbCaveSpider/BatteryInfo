@@ -40,6 +40,6 @@ namespace arcticwoof {
         bool isCharging();
         
         // Returns true if the device is in battery saver/low power mode, false otherwise (or on error)
-        bool isBatterySaverEnabled();
+        bool isBatterySaver();
     };
 }
