@@ -2,10 +2,10 @@
 #if defined(__ANDROID__)
 #include <jni.h>
 #include <string>
-#include <Geode/platform/android.hpp>
+#include <Geode/cocos/platform/android/jni/JniHelper.h>
 
 static JNIEnv* getJniEnv() {
-    auto jvm = geode::android::getJavaVM();
+    auto jvm = cocos2d::JniHelper::getJavaVM();
     if (!jvm) return nullptr;
     JNIEnv* env = nullptr;
     if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
