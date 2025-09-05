@@ -4,7 +4,7 @@
 
 using namespace arcticwoof;
 
-    float BatteryInfo::getBatteryLevel() {
+    int BatteryInfo::getBatteryLevel() {
         @autoreleasepool {
             UIDevice* d = [UIDevice currentDevice];
             if (!d.batteryMonitoringEnabled) {
@@ -13,8 +13,8 @@ using namespace arcticwoof;
             }
             
             float level = d.batteryLevel; // -1.0 if unknown
-            if (level < 0.0f) return -1.0f;
-            return level * 100.0f;
+            if (level < 0.0f) return -1;
+            return static_cast<int>(round(level * 100.0f));
         }
     }
 
