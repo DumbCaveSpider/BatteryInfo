@@ -32,20 +32,23 @@ bool isCharging(); // Check if device is charging
 
 ```cpp
 #include <Geode/Geode.hpp>
+#include <Geode/modify/PlayLayer.hpp>
 #include <arcticwoof.battery_info_api/include/BatteryInfo.hpp>
 
 using namespace geode::prelude;
 
-class $modify(MyClass, SomeClass) {
-    void someMethod() {
+class $modify(MyPlayLayer, PlayLayer) {
+    bool init(GJGameLevel *level, bool useReplay, bool dontCreateObjects) {
+        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
         auto batteryAPI = BatteryInfo::get();
         float level = batteryAPI->getBatteryLevel();
         bool charging = batteryAPI->isCharging();
         log::info("Battery level: {}%, Charging: {}", level, charging ? "Yes" : "No");
+        return true;
     }
 };
 ```
-*In this example, it logs the battery level and charging status. But do keep in mind that this only fetches the battery status that called this function once, so if you want to dynamically check for any changes on the battery status, you need to create a method that checks the battery status periodically.*
+*In this example, it logs the battery level and charging status when user enters a level. But do keep in mind that this only fetches the battery status that called this function once, so if you want to dynamically check for any changes on the battery status, you need to create a method that checks the battery status periodically.*
 
 ## Disclaimer
 This is my first API mod and only intensively tested Windows and iOS only. So if you find any issues on Android or macOS, please report them so I can fix them. Pull requests are also welcome!
