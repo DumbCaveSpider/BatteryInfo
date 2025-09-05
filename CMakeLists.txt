@@ -10,11 +10,16 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 project(BatteryInfo VERSION 1.0.0)
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    src/*.cpp
-    src/*.mm
-)
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS src/*.cpp)
+
+# darwim
+if(APPLE OR CMAKE_SYSTEM_NAME MATCHES "Darwin" OR CMAKE_SYSTEM_NAME MATCHES "iOS")
+    file(GLOB_RECURSE MM_SOURCES CONFIGURE_DEPENDS src/*.mm)
+else()
+    set(MM_SOURCES "")
+endif()
+
+add_library(${PROJECT_NAME} SHARED ${CPP_SOURCES} ${MM_SOURCES})
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
