@@ -1,8 +1,6 @@
 #include <BatteryInfo.hpp>
 #if defined(__APPLE__) && !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
-
-// Fix for CommentType name conflict between macOS SDK and Geode
-#pragma push_macro("CommentType")
+#define GEODE_COMMENTTYPE_ENUM CommentType
 #undef CommentType
 
 using namespace arcticwoof;
@@ -117,7 +115,11 @@ bool BatteryInfo::isCharging() {
     }
 }
 
-// Restore CommentType macro
-#pragma pop_macro("CommentType")
+// Restore CommentType enum from Geode
+#undef CommentType
+#ifdef GEODE_COMMENTTYPE_ENUM
+#define CommentType GEODE_COMMENTTYPE_ENUM
+#undef GEODE_COMMENTTYPE_ENUM
+#endif
 
 #endif
