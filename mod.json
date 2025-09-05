@@ -19,6 +19,11 @@
 	"dependencies": {},
 	"resources": {},
 	"tags": ["api", "developer"],
+		"links": {
+		"source": "https://github.com/DumbCaveSpider/BatteryInfo",
+		"community": "https://discord.gg/gXcppxTNxC",
+		"homepage": "https://arcticwoof.com.au"
+	},
 	"settings": {
 		"demo":{
 			"type": "bool",
