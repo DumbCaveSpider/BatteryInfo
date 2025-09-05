@@ -24,7 +24,7 @@ class $modify(MyPlayLayer, PlayLayer)
             auto label = CCLabelBMFont::create(
                 (std::to_string(static_cast<int>(batteryLevel)) + "%").c_str(),
                 "bigFont.fnt");
-            label->setPosition({winSize.width, winSize.height});
+            label->setPosition({winSize.width / 2, winSize.height / 2});
             this->addChild(label);
         }
         else
@@ -33,7 +33,7 @@ class $modify(MyPlayLayer, PlayLayer)
             auto label = CCLabelBMFont::create(
                 "N/A",
                 "bigFont.fnt");
-            label->setPosition({winSize.width, winSize.height});
+            label->setPosition({winSize.width / 2, winSize.height / 2});
             this->addChild(label);
         }
 
