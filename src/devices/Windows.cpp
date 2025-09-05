@@ -3,11 +3,13 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#if defined(__has_include)
-    #if __has_include(<winrt/Windows.System.Power.h>)
-        #include <winrt/base.h>
-        #include <winrt/Windows.System.Power.h>
-        #define HAVE_WINRT_POWER 1
+#ifdef USE_WINRT_POWER
+    #if defined(__has_include)
+        #if __has_include(<winrt/Windows.System.Power.h>)
+            #include <winrt/base.h>
+            #include <winrt/Windows.System.Power.h>
+            #define HAVE_WINRT_POWER 1
+        #endif
     #endif
 #endif
 
