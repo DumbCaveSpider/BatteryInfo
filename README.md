@@ -23,17 +23,9 @@ Then, include the header in your code:
 ## Methods
 
 ```cpp
-// Get an instance of the API
-BatteryInfo::get();
-
-// Get battery level (-1 if unknown or error)
-float getBatteryLevel();
-
-// Check if device is charging
-bool isCharging();
-
-// Check if battery saver mode is enabled
-bool isBatterySaver();
+BatteryInfo::get(); // Get an instance of the API
+float getBatteryLevel(); // Get battery level (-1 if unknown or error)
+bool isCharging(); // Check if device is charging
 
 ```
 
@@ -50,13 +42,11 @@ class $modify(MyClass, SomeClass) {
         auto batteryAPI = BatteryInfo::get();
         float level = batteryAPI->getBatteryLevel();
         bool charging = batteryAPI->isCharging();
-        bool batterySaver = batteryAPI->isBatterySaverEnabled();
-
-        log::info("Battery level: {}%, Charging: {}, Battery Saver: {}", level, charging ? "Yes" : "No", batterySaver ? "On" : "Off");
+        log::info("Battery level: {}%, Charging: {}", level, charging ? "Yes" : "No");
     }
 };
 ```
-*In this example, it logs the battery level, charging status, and battery saver mode status. But do keep in mind that this only fetches the battery status that executed this, so if you want to dynamically check for any changes on the battery status, you need to create a method that checks the battery status periodically.*
+*In this example, it logs the battery level and charging status. But do keep in mind that this only fetches the battery status that executed this, so if you want to dynamically check for any changes on the battery status, you need to create a method that checks the battery status periodically.*
 
 ## Disclaimer
 This is my first API mod and only intensively tested Windows and iOS only. So if you find any issues on Android or macOS, please report them so I can fix them. Pull requests are also welcome!

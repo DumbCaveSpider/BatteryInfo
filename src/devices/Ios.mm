@@ -24,14 +24,4 @@ using namespace arcticwoof;
         }
     }
 
-    bool BatteryInfo::isBatterySaver() {
-        @autoreleasepool {
-            // iOS 9.0+ supports Low Power Mode
-            if (@available(iOS 9.0, *)) {
-                NSProcessInfo* processInfo = [NSProcessInfo processInfo];
-                return [processInfo isLowPowerModeEnabled];
-            }
-            return false;
-        }
-    }
 #endif

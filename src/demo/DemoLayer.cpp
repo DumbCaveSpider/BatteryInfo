@@ -16,10 +16,9 @@ class $modify(MyPlayLayer, PlayLayer)
         auto batteryAPI = BatteryInfo::get();
         float batteryLevel = batteryAPI->getBatteryLevel();
         bool charging = batteryAPI->isCharging();
-        bool batterySaver = batteryAPI->isBatterySaver();
 
-        log::debug("Battery level: {}%, Charging: {}, Battery Saver: {}",
-                   batteryLevel, charging ? "Yes" : "No", batterySaver ? "On" : "Off");
+        log::debug("Battery level: {}%, Charging: {}",
+                   batteryLevel, charging ? "Yes" : "No");
 
         // Only show if battery level is known and demo is enabled
         if (batteryLevel >= 0.0f && Mod::get()->getSettingValue<bool>("demo"))
@@ -38,11 +37,6 @@ class $modify(MyPlayLayer, PlayLayer)
                 // Add charging status if applicable
                 if (charging) {
                     statusText += " [Charging]";
-                }
-                
-                // Add battery saver status independently
-                if (batterySaver) {
-                    statusText += " [Saver]";
                 }
 
                 auto label = CCLabelBMFont::create(statusText.c_str(), "bigFont.fnt");
@@ -82,7 +76,6 @@ class $modify(MyPlayLayer, PlayLayer)
         auto batteryAPI = BatteryInfo::get();
         float lvl = batteryAPI->getBatteryLevel();
         bool chrg = batteryAPI->isCharging();
-        bool saver = batteryAPI->isBatterySaver();
 
         auto label = static_cast<CCLabelBMFont *>(this->getChildByTag(1001));
         if (!label)
@@ -96,11 +89,6 @@ class $modify(MyPlayLayer, PlayLayer)
             // Add charging status if applicable
             if (chrg) {
                 text += " [Charging]";
-            }
-            
-            // Add battery saver status independently
-            if (saver) {
-                text += " [Saver]";
             }
             
             label->setString(text.c_str());
