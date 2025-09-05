@@ -1,21 +1,14 @@
-#include <BatteryInfo.hpp>
 #if defined(__APPLE__) && !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
 
-// Save and undefine CommentType to avoid name conflict
-// Handle both normal CommentType and CommentTypeDummy
-#ifdef CommentType
-    #if defined(CommentTypeDummy)
-        #define GEODE_SAVED_COMMENTTYPE CommentTypeDummy
-    #else
-        #define GEODE_SAVED_COMMENTTYPE CommentType
-    #endif
-    #undef CommentType
-#endif
-
-using namespace arcticwoof;
+// First include Apple system headers before any Geode headers
 #import <Foundation/Foundation.h>
 #import <IOKit/ps/IOPowerSources.h>
 #import <IOKit/ps/IOPSKeys.h>
+
+// Then include our headers after all Apple headers
+#include <BatteryInfo.hpp>
+
+using namespace arcticwoof;
 
 float BatteryInfo::getBatteryLevel() {
     @autoreleasepool {
@@ -123,11 +116,5 @@ bool BatteryInfo::isCharging() {
         return isCharging;
     }
 }
-
-// Restore the original CommentType definition
-#ifdef GEODE_SAVED_COMMENTTYPE
-    #define CommentType GEODE_SAVED_COMMENTTYPE
-    #undef GEODE_SAVED_COMMENTTYPE
-#endif
 
 #endif

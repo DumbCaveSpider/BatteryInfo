@@ -52,3 +52,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 ## Disclaimer
 This is my first API mod and only intensively tested Windows and iOS only. So if you find any issues on Android or macOS, please report them so I can fix them. Pull requests are also welcome!
+
+### macOS Name Conflict Issue
+When compiling for macOS, there may be a name conflict between macOS SDK's `CommentType` (in CoreServices.framework) and Geode's `CommentType` enum. To fix this, we include all Apple system headers before Geode headers in the `.mm` files. This ensures that the macOS SDK's `CommentType` is defined first, and Geode can properly handle the conflict.
