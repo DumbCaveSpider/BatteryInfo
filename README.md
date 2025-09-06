@@ -1,6 +1,7 @@
 # Battery Info API
 
 A Geode Mod API for accessing battery information on various platforms (Windows, macOS, iOS, and Android).
+For end-users, you can enable the Battery Status display in the mod settings.
 
 ## Usage
 

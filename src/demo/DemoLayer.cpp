@@ -48,6 +48,12 @@ class $modify(MyPlayLayer, PlayLayer)
                 auto label = CCLabelBMFont::create(statusText.c_str(), "bigFont.fnt");
                 label->setScale(0.5f);
 
+                auto menu = CCMenu::create();
+                menu->setID("battery_status_menu");
+                menu->setPosition({0, 0});
+                menu->addChild(label);
+                this->addChild(menu);
+
                 // Position at top middle
                 auto winSize = CCDirector::sharedDirector()->getWinSize();
                 label->setPosition({winSize.width / 2, winSize.height - 25});
@@ -67,7 +73,6 @@ class $modify(MyPlayLayer, PlayLayer)
                 }
 
                 label->setTag(1001);
-                this->addChild(label);
 
                 // Schedule a periodic update to refresh battery info
                 this->schedule(schedule_selector(MyPlayLayer::updateBatteryDisplay), 1.0f);
