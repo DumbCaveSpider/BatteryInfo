@@ -6,85 +6,61 @@
 
 using namespace arcticwoof;
 
-static JNIEnv* getJniEnv() {
-    auto jvm = cocos2d::JniHelper::getJavaVM();
-    if (!jvm) return nullptr;
-    JNIEnv* env = nullptr;
-    if (jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
-        if (jvm->AttachCurrentThread(&env, nullptr) != JNI_OK) return nullptr;
+namespace {
+    constexpr const char* kProviderClass = "io/github/arcticwoof/batteryinfo/BatteryInfoProvider";
+
+    inline bool getStaticMethod(
+        const char* clsName,
+        const char* methodName,
+        const char* signature,
+        cocos2d::JniMethodInfo& out
+    ) {
+        return cocos2d::JniHelper::getStaticMethodInfo(out, clsName, methodName, signature);
     }
-    return env;
 }
 
 int BatteryInfo::getBatteryLevel() {
-    JNIEnv* env = getJniEnv();
-    if (!env) return -1;
-    
-    // Find the BatteryInfoProvider class
-    jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
-    if (!cls) {
-        // Class not found
+    cocos2d::JniMethodInfo t;
+    if (!getStaticMethod(kProviderClass, "getBatteryLevel", "()I", t)) {
         return -1;
     }
-    
-    // Find the battery level method
-    jmethodID mid = env->GetStaticMethodID(cls, "getBatteryLevel", "()I");
-    if (!mid) {
-        // Method not found
-        env->DeleteLocalRef(cls);
+    jint val = t.env->CallStaticIntMethod(t.classID, t.methodID);
+    if (t.env->ExceptionCheck()) {
+        t.env->ExceptionClear();
+        t.env->DeleteLocalRef(t.classID);
         return -1;
     }
-    
-    jint val = env->CallStaticIntMethod(cls, mid);
-    env->DeleteLocalRef(cls);
+    t.env->DeleteLocalRef(t.classID);
     return static_cast<int>(val);
 }
 
 bool BatteryInfo::isCharging() {
-    JNIEnv* env = getJniEnv();
-    if (!env) return false;
-    
-    // Find the BatteryInfoProvider class
-    jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
-    if (!cls) {
-        // Class not found
+    cocos2d::JniMethodInfo t;
+    if (!getStaticMethod(kProviderClass, "isCharging", "()Z", t)) {
         return false;
     }
-    
-    // Find the charging state method
-    jmethodID mid = env->GetStaticMethodID(cls, "isCharging", "()Z");
-    if (!mid) {
-        // Method not found
-        env->DeleteLocalRef(cls);
+    jboolean val = t.env->CallStaticBooleanMethod(t.classID, t.methodID);
+    if (t.env->ExceptionCheck()) {
+        t.env->ExceptionClear();
+        t.env->DeleteLocalRef(t.classID);
         return false;
     }
-    
-    jboolean val = env->CallStaticBooleanMethod(cls, mid);
-    env->DeleteLocalRef(cls);
+    t.env->DeleteLocalRef(t.classID);
     return val == JNI_TRUE;
 }
 
 bool BatteryInfo::isBatterySaver() {
-    JNIEnv* env = getJniEnv();
-    if (!env) return false;
-    
-    // Find the BatteryInfoProvider class
-    jclass cls = env->FindClass("io/github/arcticwoof/batteryinfo/BatteryInfoProvider");
-    if (!cls) {
-        // Class not found
+    cocos2d::JniMethodInfo t;
+    if (!getStaticMethod(kProviderClass, "isPowerSaveMode", "()Z", t)) {
         return false;
     }
-    
-    // Find the battery saver state method
-    jmethodID mid = env->GetStaticMethodID(cls, "isPowerSaveMode", "()Z");
-    if (!mid) {
-        // Method not found
-        env->DeleteLocalRef(cls);
+    jboolean val = t.env->CallStaticBooleanMethod(t.classID, t.methodID);
+    if (t.env->ExceptionCheck()) {
+        t.env->ExceptionClear();
+        t.env->DeleteLocalRef(t.classID);
         return false;
     }
-    
-    jboolean val = env->CallStaticBooleanMethod(cls, mid);
-    env->DeleteLocalRef(cls);
+    t.env->DeleteLocalRef(t.classID);
     return val == JNI_TRUE;
 }
 
