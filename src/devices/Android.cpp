@@ -8,10 +8,6 @@ using namespace arcticwoof;
 
 // This has to be done. Sorry if I have sinned
 namespace {
-    inline JNIEnv* getEnv() {
-        return cocos2d::JniHelper::getEnv();
-    }
-
     // Fetch the current Activity via Cocos2dxHelper.getActivity()
     jobject getActivityLocalRef(JNIEnv* env) {
         cocos2d::JniMethodInfo t;
@@ -22,22 +18,37 @@ namespace {
                 "()Landroid/app/Activity;")) {
             return nullptr;
         }
-        jobject activity = t.env->CallStaticObjectMethod(t.classID, t.methodID);
-        if (t.env->ExceptionCheck()) {
-            t.env->ExceptionClear();
-            t.env->DeleteLocalRef(t.classID);
+        // Prefer the env from methodinfo to ensure it's valid for this thread
+        env = t.env;
+        jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+            env->DeleteLocalRef(t.classID);
             return nullptr;
         }
-        t.env->DeleteLocalRef(t.classID);
+        env->DeleteLocalRef(t.classID);
         return activity; // local ref
     }
 }
 
 int BatteryInfo::getBatteryLevel() {
-    JNIEnv* env = getEnv();
-    if (env == nullptr) return -1;
-
-    jobject activity = getActivityLocalRef(env);
+    // Acquire env via JniHelper static method call
+    cocos2d::JniMethodInfo t;
+    if (!cocos2d::JniHelper::getStaticMethodInfo(
+            t,
+            "org/cocos2dx/lib/Cocos2dxHelper",
+            "getActivity",
+            "()Landroid/app/Activity;")) {
+        return -1;
+    }
+    JNIEnv* env = t.env;
+    jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        env->DeleteLocalRef(t.classID);
+        return -1;
+    }
+    env->DeleteLocalRef(t.classID);
     if (activity == nullptr) return -1;
 
     // Context.BATTERY_SERVICE
@@ -101,10 +112,23 @@ int BatteryInfo::getBatteryLevel() {
 }
 
 bool BatteryInfo::isCharging() {
-    JNIEnv* env = getEnv();
-    if (env == nullptr) return false;
-
-    jobject activity = getActivityLocalRef(env);
+    // Acquire env via JniHelper static method call
+    cocos2d::JniMethodInfo t;
+    if (!cocos2d::JniHelper::getStaticMethodInfo(
+            t,
+            "org/cocos2dx/lib/Cocos2dxHelper",
+            "getActivity",
+            "()Landroid/app/Activity;")) {
+        return false;
+    }
+    JNIEnv* env = t.env;
+    jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        env->DeleteLocalRef(t.classID);
+        return false;
+    }
+    env->DeleteLocalRef(t.classID);
     if (activity == nullptr) return false;
 
     // Build IntentFilter for ACTION_BATTERY_CHANGED
@@ -226,10 +250,23 @@ bool BatteryInfo::isCharging() {
 }
 
 bool BatteryInfo::isBatterySaver() {
-    JNIEnv* env = getEnv();
-    if (env == nullptr) return false;
-
-    jobject activity = getActivityLocalRef(env);
+    // Acquire env via JniHelper static method call
+    cocos2d::JniMethodInfo t;
+    if (!cocos2d::JniHelper::getStaticMethodInfo(
+            t,
+            "org/cocos2dx/lib/Cocos2dxHelper",
+            "getActivity",
+            "()Landroid/app/Activity;")) {
+        return false;
+    }
+    JNIEnv* env = t.env;
+    jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        env->DeleteLocalRef(t.classID);
+        return false;
+    }
+    env->DeleteLocalRef(t.classID);
     if (activity == nullptr) return false;
 
     // Context.POWER_SERVICE
