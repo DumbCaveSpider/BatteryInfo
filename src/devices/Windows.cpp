@@ -26,12 +26,12 @@ bool BatteryInfo::isCharging()
 bool BatteryInfo::isBatterySaver()
 {
     // This won't work on Windows 11 energy saver mode
-    // but that last method didn't work either
-    // sucks
+    // yes that whole wall thing is just a mess
     SYSTEM_POWER_STATUS s;
     if (GetSystemPowerStatus(&s) && (s.SystemStatusFlag & 1) != 0)
     {
         return true;
     }
+    return false;
 }
 #endif

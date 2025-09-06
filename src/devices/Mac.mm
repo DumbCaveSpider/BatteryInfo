@@ -3,10 +3,12 @@
 // Define this before including system headers to prevent naming collision with
 // Geode's CommentType enum
 #define CommentType CommentTypeDummy
-#include <BatteryInfo.hpp>
 #import <Foundation/Foundation.h>
 #import <IOKit/ps/IOPSKeys.h>
 #import <IOKit/ps/IOPowerSources.h>
+#undef CommentType // Geode already does this automatically but we need to ensure it's done here too
+
+#include <BatteryInfo.hpp>
 
 
 using namespace arcticwoof;
