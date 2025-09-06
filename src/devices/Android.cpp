@@ -6,22 +6,15 @@
 
 using namespace arcticwoof;
 
+// This has to be done. Sorry if I have sinned
 namespace {
-    constexpr const char* kProviderClass = "io/github/arcticwoof/batteryinfo/BatteryInfoProvider";
-
-    inline bool getStaticMethod(
-        const char* clsName,
-        const char* methodName,
-        const char* signature,
-        cocos2d::JniMethodInfo& out
-    ) {
-        return cocos2d::JniHelper::getStaticMethodInfo(out, clsName, methodName, signature);
-    }
+    // Java provider class path
+    constexpr const char* kProviderClass = "com/arcticwoof/batteryinfo/BatteryInfoProvider";
 }
 
 int BatteryInfo::getBatteryLevel() {
     cocos2d::JniMethodInfo t;
-    if (!getStaticMethod(kProviderClass, "getBatteryLevel", "()I", t)) {
+    if (!cocos2d::JniHelper::getStaticMethodInfo(t, kProviderClass, "getBatteryLevel", "()I")) {
         return -1;
     }
     jint val = t.env->CallStaticIntMethod(t.classID, t.methodID);
@@ -36,7 +29,7 @@ int BatteryInfo::getBatteryLevel() {
 
 bool BatteryInfo::isCharging() {
     cocos2d::JniMethodInfo t;
-    if (!getStaticMethod(kProviderClass, "isCharging", "()Z", t)) {
+    if (!cocos2d::JniHelper::getStaticMethodInfo(t, kProviderClass, "isCharging", "()Z")) {
         return false;
     }
     jboolean val = t.env->CallStaticBooleanMethod(t.classID, t.methodID);
@@ -51,7 +44,7 @@ bool BatteryInfo::isCharging() {
 
 bool BatteryInfo::isBatterySaver() {
     cocos2d::JniMethodInfo t;
-    if (!getStaticMethod(kProviderClass, "isPowerSaveMode", "()Z", t)) {
+    if (!cocos2d::JniHelper::getStaticMethodInfo(t, kProviderClass, "isPowerSaveMode", "()Z")) {
         return false;
     }
     jboolean val = t.env->CallStaticBooleanMethod(t.classID, t.methodID);
