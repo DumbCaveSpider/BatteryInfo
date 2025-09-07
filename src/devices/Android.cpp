@@ -5,38 +5,13 @@
 #include <Geode/cocos/platform/android/jni/JniHelper.h>
 
 using namespace arcticwoof;
-
 // This has to be done. Sorry if I have sinned
 // Look, everyone is mad and yes i admit it but again i cant test/debug this without android device so this has to be done :(
 // If people are still mad at this, I'll just remove android support entirely :(
-namespace {
-    // Fetch the current Activity via Cocos2dxHelper.getActivity()
-    jobject getActivityLocalRef(JNIEnv* env) {
-        cocos2d::JniMethodInfo t;
-        if (!cocos2d::JniHelper::getStaticMethodInfo(
-                t,
-                "org/cocos2dx/lib/Cocos2dxHelper",
-                "getActivity",
-                "()Landroid/app/Activity;")) {
-            return nullptr;
-        }
-        // Prefer the env from methodinfo to ensure it's valid for this thread
-        env = t.env;
-        jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
-        if (env->ExceptionCheck()) {
-            env->ExceptionClear();
-            env->DeleteLocalRef(t.classID);
-            return nullptr;
-        }
-        env->DeleteLocalRef(t.classID);
-        return activity; // local ref
-    }
-}
+namespace {}
 
 int BatteryInfo::getBatteryLevel() {
-    // Context.BATTERY_SERVICE
-    jclass contextCls = env->FindClass("android/content/Context");
-    // Seed env by fetching the Activity through JniHelper
+    // Acquire env and Activity via JniHelper
     cocos2d::JniMethodInfo tAct;
     if (!cocos2d::JniHelper::getStaticMethodInfo(
             tAct,
@@ -55,67 +30,110 @@ int BatteryInfo::getBatteryLevel() {
     env->DeleteLocalRef(tAct.classID);
     if (activity == nullptr) return -1;
 
+    // Context.BATTERY_SERVICE
+    jclass contextCls = env->FindClass("android/content/Context");
+    if (contextCls == nullptr) { env->DeleteLocalRef(activity); return -1; }
+    jfieldID fidBatteryService = env->GetStaticFieldID(contextCls, "BATTERY_SERVICE", "Ljava/lang/String;");
+    if (fidBatteryService == nullptr) { env->DeleteLocalRef(contextCls); env->DeleteLocalRef(activity); return -1; }
+    jobject batteryServiceStr = env->GetStaticObjectField(contextCls, fidBatteryService);
+    if (batteryServiceStr == nullptr) { env->DeleteLocalRef(contextCls); env->DeleteLocalRef(activity); return -1; }
+
     // activity.getSystemService(Context.BATTERY_SERVICE)
     jclass activityCls = env->GetObjectClass(activity);
     if (activityCls == nullptr) { env->DeleteLocalRef(batteryServiceStr); env->DeleteLocalRef(contextCls); env->DeleteLocalRef(activity); return -1; }
     jmethodID midGetSystemService = env->GetMethodID(activityCls, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
     if (midGetSystemService == nullptr) { env->DeleteLocalRef(activityCls); env->DeleteLocalRef(batteryServiceStr); env->DeleteLocalRef(contextCls); env->DeleteLocalRef(activity); return -1; }
     jobject batteryMgrObj = env->CallObjectMethod(activity, midGetSystemService, batteryServiceStr);
-    if (env->ExceptionCheck() || batteryMgrObj == nullptr) {
-        env->ExceptionClear();
-        env->DeleteLocalRef(activityCls);
-        env->DeleteLocalRef(batteryServiceStr);
-        env->DeleteLocalRef(contextCls);
-        env->DeleteLocalRef(activity);
-        return -1;
-    }
-
-    // BatteryManager.getIntProperty(BATTERY_PROPERTY_CAPACITY)
-    jclass batteryMgrCls = env->FindClass("android/os/BatteryManager");
-    if (batteryMgrCls == nullptr) {
-        env->DeleteLocalRef(batteryMgrObj);
-        env->DeleteLocalRef(activityCls);
-        env->DeleteLocalRef(batteryServiceStr);
-        env->DeleteLocalRef(contextCls);
-        env->DeleteLocalRef(activity);
-        return -1;
-    }
-    jmethodID midGetIntProperty = env->GetMethodID(batteryMgrCls, "getIntProperty", "(I)I");
-    jfieldID fidCapacity = env->GetStaticFieldID(batteryMgrCls, "BATTERY_PROPERTY_CAPACITY", "I");
-    if (midGetIntProperty == nullptr || fidCapacity == nullptr) {
-        env->DeleteLocalRef(batteryMgrCls);
-        env->DeleteLocalRef(batteryMgrObj);
-        env->DeleteLocalRef(activityCls);
-        env->DeleteLocalRef(batteryServiceStr);
-        env->DeleteLocalRef(contextCls);
-        env->DeleteLocalRef(activity);
-        return -1;
-    }
-    jint capacityProp = env->GetStaticIntField(batteryMgrCls, fidCapacity);
-    jint level = env->CallIntMethod(batteryMgrObj, midGetIntProperty, capacityProp);
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
-        level = -1;
     }
 
-    env->DeleteLocalRef(batteryMgrCls);
-    env->DeleteLocalRef(batteryMgrObj);
+    jint finalLevel = -1;
+
+    // Try BatteryManager.getIntProperty(BATTERY_PROPERTY_CAPACITY) first
+    if (batteryMgrObj != nullptr) {
+        jclass batteryMgrCls = env->FindClass("android/os/BatteryManager");
+        if (batteryMgrCls != nullptr) {
+            jmethodID midGetIntProperty = env->GetMethodID(batteryMgrCls, "getIntProperty", "(I)I");
+            jfieldID fidCapacity = env->GetStaticFieldID(batteryMgrCls, "BATTERY_PROPERTY_CAPACITY", "I");
+            if (midGetIntProperty != nullptr && fidCapacity != nullptr) {
+                jint capacityProp = env->GetStaticIntField(batteryMgrCls, fidCapacity);
+                jint level = env->CallIntMethod(batteryMgrObj, midGetIntProperty, capacityProp);
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                } else {
+                    finalLevel = static_cast<int>(level);
+                }
+            }
+            env->DeleteLocalRef(batteryMgrCls);
+        }
+    }
+
+    // Fallback: query ACTION_BATTERY_CHANGED extras (level/scale)
+    if (finalLevel < 0) {
+        jclass intentCls = env->FindClass("android/content/Intent");
+        jclass intentFilterCls = env->FindClass("android/content/IntentFilter");
+        if (intentCls != nullptr && intentFilterCls != nullptr) {
+            jfieldID fidActionBatteryChanged = env->GetStaticFieldID(intentCls, "ACTION_BATTERY_CHANGED", "Ljava/lang/String;");
+            if (fidActionBatteryChanged != nullptr) {
+                jobject actionBatteryChanged = env->GetStaticObjectField(intentCls, fidActionBatteryChanged);
+                if (actionBatteryChanged != nullptr) {
+                    jmethodID intentFilterCtor = env->GetMethodID(intentFilterCls, "<init>", "(Ljava/lang/String;)V");
+                    if (intentFilterCtor != nullptr) {
+                        jobject filterObj = env->NewObject(intentFilterCls, intentFilterCtor, actionBatteryChanged);
+                        if (!env->ExceptionCheck() && filterObj != nullptr) {
+                            jmethodID midRegisterReceiver = env->GetMethodID(activityCls, "registerReceiver", "(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/Intent;");
+                            if (midRegisterReceiver != nullptr) {
+                                jobject batteryIntent = env->CallObjectMethod(activity, midRegisterReceiver, nullptr, filterObj);
+                                if (!env->ExceptionCheck() && batteryIntent != nullptr) {
+                                    jmethodID midGetIntExtra = env->GetMethodID(intentCls, "getIntExtra", "(Ljava/lang/String;I)I");
+                                    jclass batteryMgrCls2 = env->FindClass("android/os/BatteryManager");
+                                    if (midGetIntExtra != nullptr && batteryMgrCls2 != nullptr) {
+                                        jfieldID fidExtraLevel = env->GetStaticFieldID(batteryMgrCls2, "EXTRA_LEVEL", "Ljava/lang/String;");
+                                        jfieldID fidExtraScale = env->GetStaticFieldID(batteryMgrCls2, "EXTRA_SCALE", "Ljava/lang/String;");
+                                        if (fidExtraLevel != nullptr && fidExtraScale != nullptr) {
+                                            jobject extraLevelKey = env->GetStaticObjectField(batteryMgrCls2, fidExtraLevel);
+                                            jobject extraScaleKey = env->GetStaticObjectField(batteryMgrCls2, fidExtraScale);
+                                            jint lvl = env->CallIntMethod(batteryIntent, midGetIntExtra, extraLevelKey, static_cast<jint>(-1));
+                                            jint scl = env->CallIntMethod(batteryIntent, midGetIntExtra, extraScaleKey, static_cast<jint>(-1));
+                                            if (!env->ExceptionCheck() && scl > 0 && lvl >= 0) {
+                                                finalLevel = static_cast<int>((lvl * 100) / scl);
+                                            } else {
+                                                env->ExceptionClear();
+                                            }
+                                            env->DeleteLocalRef(extraLevelKey);
+                                            env->DeleteLocalRef(extraScaleKey);
+                                        }
+                                        if (batteryMgrCls2) env->DeleteLocalRef(batteryMgrCls2);
+                                    }
+                                    env->DeleteLocalRef(batteryIntent);
+                                } else {
+                                    env->ExceptionClear();
+                                }
+                            }
+                            env->DeleteLocalRef(filterObj);
+                        } else {
+                            env->ExceptionClear();
+                        }
+                    }
+                    env->DeleteLocalRef(actionBatteryChanged);
+                }
+            }
+            if (intentFilterCls) env->DeleteLocalRef(intentFilterCls);
+            if (intentCls) env->DeleteLocalRef(intentCls);
+        }
+    }
+
+    // Cleanup common refs
     env->DeleteLocalRef(activityCls);
     env->DeleteLocalRef(batteryServiceStr);
     env->DeleteLocalRef(contextCls);
     env->DeleteLocalRef(activity);
-    return static_cast<int>(level);
+    return finalLevel;
 }
 
 bool BatteryInfo::isCharging() {
     // Acquire env via JniHelper static method call
-    cocos2d::JniMethodInfo t;
-    if (!cocos2d::JniHelper::getStaticMethodInfo(
-            t,
-            "org/cocos2dx/lib/Cocos2dxHelper",
-            "getActivity",
-            "()Landroid/app/Activity;")) {
-        return false;
     cocos2d::JniMethodInfo tAct;
     if (!cocos2d::JniHelper::getStaticMethodInfo(
             tAct,
@@ -132,11 +150,6 @@ bool BatteryInfo::isCharging() {
         return false;
     }
     env->DeleteLocalRef(tAct.classID);
-    if (activity == nullptr) return false;
-        env->DeleteLocalRef(t.classID);
-        return false;
-    }
-    env->DeleteLocalRef(t.classID);
     if (activity == nullptr) return false;
 
     // Build IntentFilter for ACTION_BATTERY_CHANGED
@@ -259,22 +272,22 @@ bool BatteryInfo::isCharging() {
 
 bool BatteryInfo::isBatterySaver() {
     // Acquire env via JniHelper static method call
-    cocos2d::JniMethodInfo t;
+    cocos2d::JniMethodInfo tAct;
     if (!cocos2d::JniHelper::getStaticMethodInfo(
-            t,
+            tAct,
             "org/cocos2dx/lib/Cocos2dxHelper",
             "getActivity",
             "()Landroid/app/Activity;")) {
         return false;
     }
-    JNIEnv* env = t.env;
-    jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
+    JNIEnv* env = tAct.env;
+    jobject activity = env->CallStaticObjectMethod(tAct.classID, tAct.methodID);
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
-        env->DeleteLocalRef(t.classID);
+        env->DeleteLocalRef(tAct.classID);
         return false;
     }
-    env->DeleteLocalRef(t.classID);
+    env->DeleteLocalRef(tAct.classID);
     if (activity == nullptr) return false;
 
     // Context.POWER_SERVICE
