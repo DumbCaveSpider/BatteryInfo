@@ -6,7 +6,7 @@
 #import <Foundation/Foundation.h>
 #import <IOKit/ps/IOPSKeys.h>
 #import <IOKit/ps/IOPowerSources.h>
-#undef CommentType // Geode already does this automatically but we need to ensure it's done here too
+#undef CommentType // Geode already does this automatically. just in case
 
 #include <BatteryInfo.hpp>
 
