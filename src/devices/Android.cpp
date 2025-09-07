@@ -7,6 +7,8 @@
 using namespace arcticwoof;
 
 // This has to be done. Sorry if I have sinned
+// Look, everyone is mad and yes i admit it but again i cant test/debug this without android device so this has to be done :(
+// If people are still mad at this, I'll just remove android support entirely :(
 namespace {
     // Fetch the current Activity via Cocos2dxHelper.getActivity()
     jobject getActivityLocalRef(JNIEnv* env) {
@@ -32,32 +34,26 @@ namespace {
 }
 
 int BatteryInfo::getBatteryLevel() {
-    // Acquire env via JniHelper static method call
-    cocos2d::JniMethodInfo t;
+    // Context.BATTERY_SERVICE
+    jclass contextCls = env->FindClass("android/content/Context");
+    // Seed env by fetching the Activity through JniHelper
+    cocos2d::JniMethodInfo tAct;
     if (!cocos2d::JniHelper::getStaticMethodInfo(
-            t,
+            tAct,
             "org/cocos2dx/lib/Cocos2dxHelper",
             "getActivity",
             "()Landroid/app/Activity;")) {
         return -1;
     }
-    JNIEnv* env = t.env;
-    jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
+    JNIEnv* env = tAct.env;
+    jobject activity = env->CallStaticObjectMethod(tAct.classID, tAct.methodID);
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
-        env->DeleteLocalRef(t.classID);
+        env->DeleteLocalRef(tAct.classID);
         return -1;
     }
-    env->DeleteLocalRef(t.classID);
+    env->DeleteLocalRef(tAct.classID);
     if (activity == nullptr) return -1;
-
-    // Context.BATTERY_SERVICE
-    jclass contextCls = env->FindClass("android/content/Context");
-    if (contextCls == nullptr) { env->DeleteLocalRef(activity); return -1; }
-    jfieldID fidBatteryService = env->GetStaticFieldID(contextCls, "BATTERY_SERVICE", "Ljava/lang/String;");
-    if (fidBatteryService == nullptr) { env->DeleteLocalRef(contextCls); env->DeleteLocalRef(activity); return -1; }
-    jobject batteryServiceStr = env->GetStaticObjectField(contextCls, fidBatteryService);
-    if (batteryServiceStr == nullptr) { env->DeleteLocalRef(contextCls); env->DeleteLocalRef(activity); return -1; }
 
     // activity.getSystemService(Context.BATTERY_SERVICE)
     jclass activityCls = env->GetObjectClass(activity);
@@ -120,11 +116,23 @@ bool BatteryInfo::isCharging() {
             "getActivity",
             "()Landroid/app/Activity;")) {
         return false;
+    cocos2d::JniMethodInfo tAct;
+    if (!cocos2d::JniHelper::getStaticMethodInfo(
+            tAct,
+            "org/cocos2dx/lib/Cocos2dxHelper",
+            "getActivity",
+            "()Landroid/app/Activity;")) {
+        return false;
     }
-    JNIEnv* env = t.env;
-    jobject activity = env->CallStaticObjectMethod(t.classID, t.methodID);
+    JNIEnv* env = tAct.env;
+    jobject activity = env->CallStaticObjectMethod(tAct.classID, tAct.methodID);
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
+        env->DeleteLocalRef(tAct.classID);
+        return false;
+    }
+    env->DeleteLocalRef(tAct.classID);
+    if (activity == nullptr) return false;
         env->DeleteLocalRef(t.classID);
         return false;
     }
