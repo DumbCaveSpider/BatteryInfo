@@ -55,4 +55,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 *In this example, it logs the battery level and charging status when user enters a level. But do keep in mind that this only fetches the battery status that called this function once, so if you want to dynamically check for any changes on the battery status, you need to create a method that checks the battery status periodically.*
 
 ## Disclaimer
-This is my first API mod and only intensively tested Windows and iOS only. So if you find any issues on Android or macOS, please report them so I can fix them. Pull requests are also welcome!
+This is my first API mod and only intensively tested Windows and iOS. Any android implemetation that works are welcome!
+## Dev Notes
+- Windows 10 Low Battery mode works but Windows 11 Energy Saver doesn't work due of how Windows changed it.
+- Currently, Android isn't supported at all as of now due to lack of testing.

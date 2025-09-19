@@ -8,7 +8,7 @@
 	},
 	"id": "arcticwoof.battery_info_api",
 	"name": "Battery Info API",
-	"version": "v1.0.2",
+	"version": "v1.0.3",
 	"developer": "ArcticWoof",
 	"description": "API for accessing device battery information",
 	"api": {
