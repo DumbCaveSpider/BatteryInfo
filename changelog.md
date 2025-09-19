@@ -1,6 +1,6 @@
 # v1.0.3
 - Removed Android support entirely until I find a better way to do this.
-- Removed the Windows 11 Energy Saver implementation as it doesn't work.
+- Removed the Windows 11 Energy Saver implementation as it doesn't work. (still works on Windows 10)
 # v1.0.2
 - Changed Android implementation, it should work without crashing but unable to verify without an Android device. :/
 - Attempted to detect Windows 11 Energy Saver implementation
